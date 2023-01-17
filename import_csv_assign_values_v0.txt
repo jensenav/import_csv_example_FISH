@@ -1,0 +1,64 @@
+;import_csv_assign_values_v0.txt
+
+
+ ;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+ ;reads in the values the .csv file and assigns those values. 		          ;
+ ;Navead Jensen 1/2023		  												  ;
+ ;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+
+; +++ Create grid here:
+def grid_size
+ _x = 10 ;or 400, whatever you want
+ _y = 10
+end
+grid_size
+
+gr _x,_y
+model elas
+
+; +++ finds zone extents of the model.
+def find_ij_gps	
+loop i (1,izones)
+loop j (1,jzones)
+i_zones=i
+j_zones=j
+endloop
+endloop
+z_arr_max_size=i_zones*j_zones
+end
+find_ij_gps
+
+; +++ create arrays.
+def n_create_array		
+ array shear_stri(i_zones,j_zones)		;only "1 layer" thick, that one layer is the zone pwp (
+end		; Don't need to execute when only building arrays within a function!
+
+; +++ read in from file.
+def read_in					;This function has to be separate from the input_values function in order to avoid an error.
+ oo=close(_filename,0,1)	;closes any files that may be open, do just in case.
+ oo=open(_filename,0,1) 	;opens the designated file name (must have a variable on the left side of the equations). The 0 tells FLAC the file is open for reading, the 1 tells flac that the file is in ASCII data form.
+ oo=read(shear_stri,z_arr_max_size)	;reads data in file to an array
+end
+set _filename = 'one_column_sorted_correctly_random_numbers.csv'
+read_in
+
+; +++ input/assign values.
+def input_values
+loop i (1,izones)
+loop j (1,jzones)
+ shear_mod(i,j)=parse(shear_stri(i,j),1);_float(i,j)					;Converts string to float using parse, and assigns G values to grid
+ ;---------------- This block for checking purposes ----------------
+ ; _i = i 								
+ ; _j = j 
+ ; _pwp=_float(i,j)						
+ ; command
+ ; pr _i _j _pwp
+ ; endcommand
+ ;---------------- This block for checking purposes ----------------
+endloop
+endloop
+end
+input_values
+
+
+
